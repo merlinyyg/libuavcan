@@ -8,6 +8,12 @@
 #include <uavcan/debug.hpp>
 #include <cassert>
 
+#define MODULE_NAME "UAVCAN"
+#include <px4_platform_common/log.h>
+
+extern int  i_index_;
+int i_index_ = 0;
+
 namespace uavcan
 {
 /**
@@ -303,18 +309,42 @@ std::string Frame::toString() const
  */
 bool RxFrame::parse(const CanRxFrame& can_frame)
 {
-    if (!Frame::parse(can_frame))
+    CanRxFrame new_frame = can_frame;
+    //wit
+    PX4_INFO("XXXXXXXXX can_frame id = %ld",new_frame.id);
+    PX4_INFO("XXXXXXXXX can_frame id = %ld",(new_frame.id & CanFrame::MaskStdID));
+    // #ifdef 1
+    if((new_frame.id & CanFrame::MaskStdID) == 0x38)
+    {
+        uint8_t temp = new_frame.data[1] & 0x1F;
+        new_frame.data[1] = new_frame.data[2];
+        new_frame.data[2] = temp;
+        new_frame.data[7] = i_index_ | 0xC0;
+        new_frame.id = -2142107647;
+
+        i_index_++;
+        if(i_index_==32)
+        {
+            i_index_ = 0;
+        }
+    }
+    PX4_INFO("XXXXXXXXX new_frame.data[1] = %d ,new_frame.data[2] = %d,new_frame.data[7] = %d",new_frame.data[1],new_frame.data[2],new_frame.data[7]);
+    // #endif
+
+
+
+    if (!Frame::parse(new_frame))
     {
         return false;
     }
-    if (can_frame.ts_mono.isZero())  // Monotonic timestamps are mandatory.
+    if (new_frame.ts_mono.isZero())  // Monotonic timestamps are mandatory.
     {
         UAVCAN_ASSERT(0);                   // If it is not set, it's a driver failure.
         return false;
     }
-    ts_mono_ = can_frame.ts_mono;
-    ts_utc_ = can_frame.ts_utc;
-    iface_index_ = can_frame.iface_index;
+    ts_mono_ = new_frame.ts_mono;
+    ts_utc_ = new_frame.ts_utc;
+    iface_index_ = new_frame.iface_index;
     return true;
 }
 
