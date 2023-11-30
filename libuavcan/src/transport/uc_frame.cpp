@@ -331,18 +331,18 @@ bool RxFrame::parse(const CanRxFrame& can_frame)
     PX4_INFO("XXXXXXXXX new_frame.data[1] = %d ,new_frame.data[2] = %d,new_frame.data[7] = %d",new_frame.data[1],new_frame.data[2],new_frame.data[7]);
     // #endif
 
-    if (!Frame::parse(can_frame))
+    if (!Frame::parse(new_frame))
     {
         return false;
     }
-    if (can_frame.ts_mono.isZero())  // Monotonic timestamps are mandatory.
+    if (new_frame.ts_mono.isZero())  // Monotonic timestamps are mandatory.
     {
         UAVCAN_ASSERT(0);                   // If it is not set, it's a driver failure.
         return false;
     }
-    ts_mono_ = can_frame.ts_mono;
-    ts_utc_ = can_frame.ts_utc;
-    iface_index_ = can_frame.iface_index;
+    ts_mono_ = new_frame.ts_mono;
+    ts_utc_ = new_frame.ts_utc;
+    iface_index_ = new_frame.iface_index;
     return true;
 }
 
