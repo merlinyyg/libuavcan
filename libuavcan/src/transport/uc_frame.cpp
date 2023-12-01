@@ -311,8 +311,8 @@ bool RxFrame::parse(const CanRxFrame& can_frame)
 {
     CanRxFrame new_frame = can_frame;
     //wit
-    PX4_INFO("XXXXXXXXX can_frame id = %ld",new_frame.id);
-    PX4_INFO("XXXXXXXXX can_frame id = %ld",(new_frame.id & CanFrame::MaskStdID));
+    // PX4_INFO("XXXXXXXXX can_frame id = %ld",new_frame.id);
+    // PX4_INFO("XXXXXXXXX can_frame id = %ld",(new_frame.id & CanFrame::MaskStdID));
     // #ifdef 1
     if((new_frame.id & CanFrame::MaskStdID) == 0x38)
     {
@@ -328,7 +328,7 @@ bool RxFrame::parse(const CanRxFrame& can_frame)
             i_index_ = 0;
         }
     }
-    PX4_INFO("XXXXXXXXX new_frame.data[1] = %d ,new_frame.data[2] = %d,new_frame.data[7] = %d",new_frame.data[1],new_frame.data[2],new_frame.data[7]);
+    // PX4_INFO("XXXXXXXXX new_frame.data[1] = %d ,new_frame.data[2] = %d,new_frame.data[7] = %d",new_frame.data[1],new_frame.data[2],new_frame.data[7]);
     // #endif
 
     if (!Frame::parse(new_frame))
