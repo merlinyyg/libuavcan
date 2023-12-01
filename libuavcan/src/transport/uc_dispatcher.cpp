@@ -5,6 +5,8 @@
 #include <uavcan/transport/dispatcher.hpp>
 #include <uavcan/debug.hpp>
 #include <cassert>
+#define MODULE_NAME "UAVCANSEND"
+#include "px4_log.h"
 
 namespace uavcan
 {
@@ -300,6 +302,19 @@ int Dispatcher::send(const Frame& frame, MonotonicTime tx_deadline, MonotonicTim
         UAVCAN_ASSERT(0);
         return -ErrLogic;
     }
+    // can_frame.id = -2142107647;
+    //PX4_INFO("%lu",can_frame.id );
+    if (can_frame.id == 0x864EFC01){
+        can_frame.id = 226;//0XE2  thr brake
+        can_frame.data[7] = 0;
+    }else if (can_frame.id == 0x864EFD01){
+        can_frame.id = 227;//0xE3 steer
+        can_frame.data[7] = 0;
+    }else{
+        can_frame.id = 111;
+
+    }
+
     return canio_.send(can_frame, tx_deadline, blocking_deadline, iface_mask, qos, flags);
 }
 
