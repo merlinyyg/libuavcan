@@ -11,8 +11,12 @@
 #define MODULE_NAME "UAVCAN"
 #include <px4_platform_common/log.h>
 
-extern int  i_index_;
-int i_index_ = 0;
+extern int  i_index_0x36;
+extern int  i_index_0x38;
+extern int  i_index_0x401;
+int i_index_0x36 = 0;
+int i_index_0x38 = 0;
+int i_index_0x401 = 0;
 
 namespace uavcan
 {
@@ -312,21 +316,57 @@ bool RxFrame::parse(const CanRxFrame& can_frame)
     CanRxFrame new_frame = can_frame;
     //wit
     // PX4_INFO("XXXXXXXXX can_frame id = %ld",new_frame.id);
-    // PX4_INFO("XXXXXXXXX can_frame id = %ld",(new_frame.id & CanFrame::MaskStdID));
+    // PX4_INFO("XXXXXXXXX can_frame id = %ld",(new_frame.id & CanFrame::MaskExtID));
     // #ifdef 1
-    if((new_frame.id & CanFrame::MaskStdID) == 0x38)
+    switch(new_frame.id & CanFrame::MaskStdID)
     {
-        uint8_t temp = new_frame.data[1] & 0x1F;
-        new_frame.data[1] = new_frame.data[2];
-        new_frame.data[2] = temp;
-        new_frame.data[7] = i_index_ | 0xC0;
-        new_frame.id = -2142107647;
-
-        i_index_++;
-        if(i_index_==32)
+        case 0x38:
         {
-            i_index_ = 0;
+            uint8_t temp = new_frame.data[1] & 0x1F;
+            new_frame.data[1] = new_frame.data[2];
+            new_frame.data[2] = temp;
+            new_frame.data[7] = i_index_0x38 | 0xC0;
+            new_frame.id = -2142107647;
+            i_index_0x38++;
+            if(i_index_0x38==32)
+            {
+                i_index_0x38 = 0;
+            }
+            break;
         }
+        case 0x36:
+        {
+            uint8_t temp = new_frame.data[1];
+            new_frame.data[1] = new_frame.data[2];
+            new_frame.data[2] = temp;
+            temp = new_frame.data[3];
+            new_frame.data[3] = new_frame.data[4];
+            new_frame.data[4] = temp;
+            new_frame.data[7] = i_index_0x36 | 0xC0;
+            new_frame.id = -2142107391;
+            i_index_0x36++;
+            if(i_index_0x36==32)
+            {
+                i_index_0x36 = 0;
+            }
+            break;
+        }
+        case 0x401:
+        {
+            uint8_t temp = new_frame.data[3];
+            new_frame.data[3] = new_frame.data[4];
+            new_frame.data[4] = temp;
+            new_frame.data[7] = i_index_0x401 | 0xC0;
+            new_frame.id = -2142107135;
+            i_index_0x401++;
+            if(i_index_0x401==32)
+            {
+                i_index_0x401 = 0;
+            }
+            break;
+        }
+        default:
+            break;
     }
     // PX4_INFO("XXXXXXXXX new_frame.data[1] = %d ,new_frame.data[2] = %d,new_frame.data[7] = %d",new_frame.data[1],new_frame.data[2],new_frame.data[7]);
     // #endif
